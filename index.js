@@ -28,6 +28,8 @@ async function run() {
         // await client.connect();
         // Send a ping to confirm a successful connection
         const  toysCollection = client.db('toysAnimal').collection('toysInformation');
+        const addToyCollection = client.db('toysAnimal').collection('addToy');
+
 
         app.get('/toys',async(req,res)=>{
             const cursor = toysCollection.find();
@@ -47,11 +49,28 @@ async function run() {
             const id = req.params.id;
             const query = {_id: new ObjectId(id)}
             const options = {
-                projection:{Name: 1, Price: 1, Rating: 1, Quantity: 1}
+                projection:{Name: 1, Price: 1, Rating: 1, Quantity: 1, Picture: 1, details: 1}
             }
             const result = await toysCollection.findOne(query,options);
             res.send(result);
         })
+
+        // add toy
+        app.get('/addToy',async(req,res)=>{
+            console.log(req.query.email);
+            let query = {};
+            if(req.query?.email){
+                query = {email: req.query.email}
+            }
+            const result = await addToyCollection.find(query).toArray();
+            res.send(result);   
+        })
+        app.post('/addToy',async(req,res)=>{
+            const addToy = req.body;
+            console.log(addToy);
+            const result = await addToyCollection.insertOne(addToy);
+            res.send(result);
+        });
 
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
