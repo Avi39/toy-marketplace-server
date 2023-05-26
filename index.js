@@ -30,6 +30,23 @@ async function run() {
         const  toysCollection = client.db('toysAnimal').collection('toysInformation');
         const addToyCollection = client.db('toysAnimal').collection('addToy');
 
+        // create index
+
+        const indexKeys = {Name:1};
+        const indexOPtions = {name:"Name_1"};
+        const result = await toysCollection.createIndex(indexKeys,indexOPtions)
+
+        app.get('/toysSearch/:text',async(req,res)=>{
+            const searchText = req.params.text;
+
+            const result = await toysCollection.find({
+               $or: [
+                    {Name: {$regex: searchText, $options: "i"}}
+                ],
+            }).toArray();
+
+            res.send(result);
+        })
 
         app.get('/toys',async(req,res)=>{
             const cursor = toysCollection.find();
@@ -43,6 +60,8 @@ async function run() {
                  const result = await toysCollection.find({category: req.params.toys_by_category}).toArray();
                  return res.send(result)
             }
+            const result = await toysCollection.find({}).toArray();
+            res.send(result)
         })
 
         app.get('/toyss/:id',async(req,res)=>{
@@ -69,11 +88,13 @@ async function run() {
             const addToy = req.body;
             console.log(addToy);
             const result = await addToyCollection.insertOne(addToy);
-            res.send(result);
+            // const result2 = await toysCollection.insertOne(addToy);
+            res.send(result,result2);
         });
 
-        app.put('/bookings/:id',async(req,res)=>{
+        app.patch('/updated/:id',async(req,res)=>{
             const updatedToy = req.body;
+            console.log(updatedToy);
             
         })
 
