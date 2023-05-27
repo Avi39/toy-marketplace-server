@@ -40,7 +40,7 @@ async function run() {
         app.get('/toysSearch/:text',async(req,res)=>{
             const searchText = req.params.text;
             
-            let result;
+            // let result;
             const result1 = await toysCollection.find({
                $or: [
                     {Name: {$regex: searchText, $options: "i"}}
@@ -52,13 +52,14 @@ async function run() {
                          {Name: {$regex: searchText, $options: "i"}}
                      ],
                  }).toArray();
-                 if(result1){
-                    result = result1;
-                }
-                else if(result2)
-                {
-                    result = result2;
-                }
+                //  if(result1){
+                //     result = result1;
+                // }
+                // else if(result2)
+                // {
+                //     result = result2;
+                // }
+               const result = [...result1,...result2]
             res.send(result);
         })
 
