@@ -34,17 +34,31 @@ async function run() {
 
         const indexKeys = {Name:1};
         const indexOPtions = {name:"Name_1"};
-        const result = await toysCollection.createIndex(indexKeys,indexOPtions)
+        const result1 = await toysCollection.createIndex(indexKeys,indexOPtions)
+        const result2 = await addToyCollection.createIndex(indexKeys,indexOPtions)
 
         app.get('/toysSearch/:text',async(req,res)=>{
             const searchText = req.params.text;
-
-            const result = await toysCollection.find({
+            
+            let result;
+            const result1 = await toysCollection.find({
                $or: [
                     {Name: {$regex: searchText, $options: "i"}}
                 ],
             }).toArray();
-
+            
+                const result2 = await addToyCollection.find({
+                    $or: [
+                         {Name: {$regex: searchText, $options: "i"}}
+                     ],
+                 }).toArray();
+                 if(result1){
+                    result = result1;
+                }
+                else if(result2)
+                {
+                    result = result2;
+                }
             res.send(result);
         })
 
@@ -52,6 +66,14 @@ async function run() {
             const cursor = toysCollection.find();
             const result = await cursor.toArray();
             res.send(result);
+        })
+        app.get('/allToys',async(req,res)=>{
+            const cursor = toysCollection.find();
+            const result = await cursor.toArray();
+            const cursor2 = await addToyCollection.find().toArray();
+            const result2 = [...result,...cursor2] ;
+            res.send(result2);
+
         })
 
         app.get('/toys/:toys_by_category',async(req,res)=>{
@@ -70,7 +92,17 @@ async function run() {
             const options = {
                 projection:{Name: 1, Price: 1, Rating: 1, Quantity: 1, Picture: 1, details: 1}
             }
-            const result = await toysCollection.findOne(query,options);
+            let result;
+            
+            const result1 = await toysCollection.findOne(query,options);
+            if(result1){
+                result = result1;
+            }
+            else{
+                const result2 = await addToyCollection.findOne(query,options);
+                result = result2;
+            }
+
             res.send(result);
         })
 
@@ -91,6 +123,8 @@ async function run() {
             // const result2 = await toysCollection.insertOne(addToy);
             res.send(result);   
         });
+       
+        
 
         app.patch('/updated/:id',async(req,res)=>{
             const updatedToy = req.body;
