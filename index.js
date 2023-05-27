@@ -89,7 +89,7 @@ async function run() {
             console.log(addToy);
             const result = await addToyCollection.insertOne(addToy);
             // const result2 = await toysCollection.insertOne(addToy);
-            res.send(result,result2);
+            res.send(result);   
         });
 
         app.patch('/updated/:id',async(req,res)=>{
