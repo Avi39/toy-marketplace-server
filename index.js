@@ -7,6 +7,8 @@ const port = process.env.PORT || 5000;
 
 // middleware
 app.use(cors());
+// app.use(cors(corsConfig))
+// app.options("", cors(corsConfig))
 app.use(express.json());
 
 console.log(process.env.DB_PASS);
@@ -32,10 +34,10 @@ async function run() {
 
         // create index
 
-        const indexKeys = {Name:1};
-        const indexOPtions = {name:"Name_1"};
-        const result1 = await toysCollection.createIndex(indexKeys,indexOPtions)
-        const result2 = await addToyCollection.createIndex(indexKeys,indexOPtions)
+        // const indexKeys = {Name:1};
+        // const indexOPtions = {name:"Name_1"};
+        // const result1 = await toysCollection.createIndex(indexKeys,indexOPtions)
+        // const result2 = await addToyCollection.createIndex(indexKeys,indexOPtions)
 
         app.get('/toysSearch/:text',async(req,res)=>{
             const searchText = req.params.text;
@@ -128,9 +130,17 @@ async function run() {
         
 
         app.patch('/updated/:id',async(req,res)=>{
-            const updatedToy = req.body;
-            console.log(updatedToy);
-            
+            const body = req.body;
+            const id = req.params.id;
+            const filter = {_id: new ObjectId(id)};
+            const updatedDoc = {
+                $set:{
+                    ...body
+                }
+            }
+            const result = await addToyCollection.updateOne(filter,updatedDoc);
+            res.send(result);
+            // console.log(updatedToy);
         })
 
         app.delete('/addToy/:id',async(req,res)=>{
@@ -140,7 +150,7 @@ async function run() {
             res.send(result);
         })
 
-        await client.db("admin").command({ ping: 1 });
+        // await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
         // Ensures that the client will close when you finish/error
