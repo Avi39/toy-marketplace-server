@@ -92,7 +92,7 @@ async function run() {
         app.get('/toyss/:id',async(req,res)=>{
             const id = req.params.id;
             const query = {_id: new ObjectId(id)}
-            const options = {
+            const options = {              
                 projection:{Name: 1, Price: 1, Rating: 1, Quantity: 1, Picture: 1, details: 1}
             }
             let result;
@@ -112,11 +112,16 @@ async function run() {
         // add toy
         app.get('/addToy',async(req,res)=>{
             console.log(req.query.email);
+            const options = {
+                // sort matched documents in descending order by rating
+                sort: { "Price": 1 },
+                // Include only the `title` and `imdb` fields in the returned document
+              };
             let query = {};
             if(req.query?.email){
                 query = {email: req.query.email}
             }
-            const result = await addToyCollection.find(query).toArray();
+            const result = await addToyCollection.find(query,options).toArray();
             res.send(result);   
         })
         app.post('/addToy',async(req,res)=>{
